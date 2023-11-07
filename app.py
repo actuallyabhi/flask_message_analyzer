@@ -3,7 +3,7 @@ from flask import Flask, request
 from dotenv import load_dotenv
 
 # modules
-from helpers.formatters import convert_to_qna_chucks, filter_duplicates, get_top_questions_by_times_asked
+from helpers.formatters import convert_to_qna_chucks, merge_duplicates, get_top_questions_by_times_asked
 from helpers.optimizers import merge_similar_questions_using_nlp, merge_similar_questions,merge_similar_answers, merge_similar_answers_using_nlp
 from helpers.aggregators import get_satisfaction_scores
 
@@ -19,7 +19,7 @@ def get_top_questions():
     qna_arr = convert_to_qna_chucks(req_data['messages'])
 
     # Filter duplicates
-    unique_messages = filter_duplicates(qna_arr)
+    unique_messages = merge_duplicates(qna_arr)
 
     # marge similar questions
     merged_messages = merge_similar_questions(unique_messages)
@@ -33,8 +33,22 @@ def get_top_questions():
     # aggregate answers with satisfaction scores
     aggregated_data = get_satisfaction_scores(final_messages)
 
-
     return aggregated_data
+
+@app.route('/get_worst_or_unanswered_questions', methods=['POST'])
+def get_worst_or_unanswered_questions():
+    # Get the request body
+    req_data = request.get_json()
+
+    # Process the request body
+    qna_arr = convert_to_qna_chucks(req_data['messages'])
+
+    return qna_arr
+    # filter voted questions
+    # voted_questions = [item for item in qna_arr if item.get('answer_vote') == 0]
+    # return voted_questions
+
+    
 
 if __name__ == '__main__':
     load_dotenv()

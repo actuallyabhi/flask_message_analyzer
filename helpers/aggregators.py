@@ -2,6 +2,7 @@ import os
 import json
 from dotenv import load_dotenv
 from openai import OpenAI
+from openai._exceptions import OpenAIError, AuthenticationError, RateLimitError
 
 # data = [{
 # 			"answers": [
@@ -61,15 +62,22 @@ def get_satisfaction_scores(topQuestionAnswers):
 
             # add times_asked to formatted_response
             formatted_response['times_asked'] = times_asked
+
+            aggregated_data.append(formatted_response)
+          # handle multiple exceptions at once
+        except (OpenAIError, AuthenticationError, RateLimitError) as e:
+            print(e)
+            return {
+                'status_code': 500,
+                'error': 'Something went wrong. Please try again later.'
+            }
         except Exception as e:
             print(e)
             formatted_response = {
                 'question': question,
                 'answers': answers,
                 'times_asked': times_asked,
-                'satisfaction_scores': []
-            }   
-        finally:           
+            }         
             aggregated_data.append(formatted_response)
     return aggregated_data
 

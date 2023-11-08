@@ -9,13 +9,16 @@ pip install -r requirements.txt
 
 ## Usage
 1.Copy the .env.example file to .env and set the OPEN_AI_KEY variable to your OpenAI API key.
+```bash
+    cp .env.example .env
+```
 
 2.Run the app
 ```bash
     python app.py
 ```
 
-## API Reference (laravel)
+## API Reference (Laravel)
 1. POST /api/get_top_questions
     - JSON: {
         "host_url": string | required,
@@ -28,7 +31,7 @@ pip install -r requirements.txt
         "num_days": int | optional,
     }
 
-# File structure
+## File structure
 - en_core_web_sm: Spacy model
 - helpers
     -aggregate.py

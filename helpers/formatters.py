@@ -1,20 +1,20 @@
 def convert_to_qna_chucks(req_data):
     arr = []
-    i = 0
-    while i < len(req_data):
-        entry = req_data[i]
-        output = {}
+    for i, entry in enumerate(req_data):
         if entry["sender_id"] != 1:
-            output['question'] = entry["message"]
-            output['unanswered'] = entry["unanswered"]
-            output['message_id'] = entry['id']
-            i += 1
-            if (req_data[i]["chat_id"] == entry["chat_id"] and req_data[i]["sender_id"] == 1):
-                output['answer'] = req_data[i]['message']
-                output['answer_vote'] = req_data[i]['vote']
-                output['answer_id'] = req_data[i]['id']
-        i +=1
-        arr.append(output)
+            output = {
+                "question": entry["message"],
+                "unanswered": entry["unanswered"],
+                "message_id": entry['id'],
+                "created_at": entry['created_at'],
+            }
+            if i + 1 < len(req_data) and req_data[i + 1]["chat_id"] == entry["chat_id"] and req_data[i + 1]["sender_id"] == 1:
+                output.update({
+                    "answer": req_data[i + 1]["message"],
+                    "answer_vote": req_data[i + 1]["vote"],
+                    "answer_id": req_data[i + 1]["id"],
+                })
+            arr.append(output)
     return arr
 
 

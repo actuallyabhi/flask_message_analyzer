@@ -2,3 +2,5 @@
 env
 # ignore pycache
 __pycache__
+test.py
+TODO.md

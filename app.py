@@ -1,59 +1,51 @@
 import os
-from flask import Flask, request
+from flask import Flask, request, jsonify
 from dotenv import load_dotenv
 
-# modules
-from helpers.formatters import convert_to_qna_chucks, merge_duplicates, get_top_questions_by_times_asked
-from helpers.optimizers import merge_similar_questions_using_nlp, merge_similar_questions,merge_similar_answers, merge_similar_answers_using_nlp
-from helpers.aggregators import get_satisfaction_scores
-
+# Helper functions
+from helpers.formatters import convert_to_qna_chucks, get_top_questions_by_times_asked
+from helpers.optimizers import merge_similar_questions, merge_similar_answers_using_nlp
+from helpers.aggregators import get_satisfaction_scores, get_top_negative_score_questions
 
 app = Flask(__name__)
 
 @app.route('/get_top_questions', methods=['POST'])
 def get_top_questions():
-    # Get the request body
     req_data = request.get_json()
 
-    # Process the request body
-    qna_arr = convert_to_qna_chucks(req_data['messages'])
+    ## Formatting the data to be optimized
+    qna_list = convert_to_qna_chucks(req_data['messages'])
+    merged_messages = merge_similar_questions(qna_list)
 
-    # Filter duplicates
-    unique_messages = merge_duplicates(qna_arr)
-
-    # marge similar questions
-    merged_messages = merge_similar_questions(unique_messages)
-
-    # Get top questions by times asked
+    ## Optimizing the data
     top_messages = get_top_questions_by_times_asked(merged_messages, 10)
-    
-    # merge similar answers
     final_messages = merge_similar_answers_using_nlp(top_messages)
 
-    # aggregate answers with satisfaction scores
+    ## Aggregating the data
     aggregated_data = get_satisfaction_scores(final_messages)
 
-    return aggregated_data
+    return jsonify(aggregated_data)
+
 
 @app.route('/get_worst_or_unanswered_questions', methods=['POST'])
 def get_worst_or_unanswered_questions():
-    # Get the request body
+    ## Get the request body
     req_data = request.get_json()
 
-    # Process the request body
-    qna_arr = convert_to_qna_chucks(req_data['messages'])
+    ## Formatting the data to be aggregated
+    qna_list = convert_to_qna_chucks(req_data['messages'])
 
-    return qna_arr
-    # filter voted questions
-    # voted_questions = [item for item in qna_arr if item.get('answer_vote') == 0]
-    # return voted_questions
-
+    ## Aggregating the data
+    aggregated_data = get_top_negative_score_questions(qna_list, 10)
     
+    return jsonify(aggregated_data)
 
 if __name__ == '__main__':
     load_dotenv()
-    # check for OPEN_AI_API_KEY
+
     if not os.environ.get('OPEN_AI_KEY'):
         print('OPENAI_API_KEY not found in .env file')
         exit(1)
+
     app.run(debug=True)
+

@@ -15,8 +15,8 @@ def get_top_questions():
 
     ## Formatting the data to be optimized
     qna_list = convert_to_qna_chucks(req_data['messages'])
-    merged_messages = merge_similar_questions_using_fuzzy(qna_list) # Fastest
-    # merged_messages = merge_similar_questions_using_nlp(qna_list) # more accurate
+    # merged_messages = merge_similar_questions_using_fuzzy(qna_list) # Fastest
+    merged_messages = merge_similar_questions_using_nlp(qna_list) # more accurate
 
     ## Optimizing the data
     top_messages = get_top_questions_by_times_asked(merged_messages, 10)

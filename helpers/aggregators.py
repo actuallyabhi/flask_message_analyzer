@@ -17,18 +17,18 @@ def get_satisfaction_scores(topQuestionAnswers):
                         model="gpt-3.5-turbo-0613",
                         messages=[{
                             'role': 'system',
-                            'content': """You will be provided with a question and array of answers. Please rate the answer on a scale of 1 to 5, with 1 being the lowest and 5 being the highest. Also justify why you have given that rating. The basis of your rating should be how well the answer addresses the question. Output should only be in valid JSON format. AS:
+                            'content': """You will be provided with a question and array of answers. Please rate the answer on a scale of 1 to 5, with 1 being the lowest and 5 being the highest. The basis of your rating should be how well the answer addresses the question. Output should only be in valid JSON format. AS:
                             { question: "", 
                               answers: [{
                                     answer: "",
                                     satisfaction_score:  int
-                                }]
+                                }],
                             },
                             """
                             },
                             {
                             'role': 'user',
-                            'content': f"Q: {question}\nA: {answers}\nSatisfaction score:"
+                            'content': f"Q: {question}\nA: {answers}\nSatisfaction score: Int \n Justification: String"
                             }
                         ],
                         temperature=0.8,

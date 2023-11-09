@@ -58,7 +58,7 @@ def merge_similar_questions_using_nlp(messagesList, similarity_threshold=0.8):
 # Reference:  https://towardsdatascience.com/find-text-similarities-with-your-own-machine-learning-algorithm-7ceda78f9710
 
 # merge similar questions using fuzzywuzzy (Slow)
-def merge_similar_questions(messagesList, similarity_threshold=80):
+def merge_similar_questions_using_fuzzy(messagesList, similarity_threshold=80):
     ## Step 1: Merge duplicate questions
     unique_messages = merge_duplicates(messagesList)
 

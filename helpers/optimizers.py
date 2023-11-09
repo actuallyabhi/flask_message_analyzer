@@ -1,44 +1,55 @@
 import spacy
-from collections import defaultdict
+import concurrent.futures
+import numpy as np
 from fuzzywuzzy import fuzz
 from itertools import chain
+from collections import defaultdict
+from scipy.spatial.distance import cosine
 
 from .formatters import merge_duplicates
 
-nlp = spacy.load("en_core_web_sm")
+# nlp = spacy.load("en_core_web_sm") # when using en_core_web_sm
+nlp = spacy.load("en_core_web_md")
+
+
+def _calculate_similarity(subject, key):
+    subject_vector = nlp(subject).vector
+    key_vector = nlp(key).vector
+
+    if np.all(subject_vector == 0) or np.all(key_vector == 0):
+        return 0
+
+    return 1 - cosine(subject_vector, key_vector)
+
 # merge similar questions using spaCy similarity  (Slow)
 def merge_similar_questions_using_nlp(messagesList, similarity_threshold=0.8):
-    #  merge duplicate questions
     unique_messages = merge_duplicates(messagesList)
 
-    # Initialize the merged_qna_dict, which will be our output
     merged_qna_dict = defaultdict(lambda: {"answers": [], "times_asked": 0})
-
-    # Iterate through each question/answer pair
-    for qna in unique_messages:
+    def process_qna(qna):
         question = qna["question"]
         answer = qna["answer"]
         times_asked = qna.get("times_asked", 1)
         found_similar_question = False
 
-        # Iterate through the keys in the merged_qna_dict
         for key in merged_qna_dict:
-            similarity = nlp(question).similarity(nlp(key))
+            # similarity = nlp(question).similarity(nlp(key)) # when using en_core_web_sm
+            similarity = _calculate_similarity(question, key)
 
-            # If the similarity is greater than the threshold, we'll merge the questions
             if similarity >= similarity_threshold:
                 for item in answer:
-                    # Append each answer to the list of answers for the key
                     merged_qna_dict[key]["answers"].append(item)
                 merged_qna_dict[key]["times_asked"] += times_asked
                 found_similar_question = True
                 break
 
-        # If we didn't find a similar question, we'll create a new entry with an empty list
         if not found_similar_question:
             for item in answer:
                 merged_qna_dict[question]["answers"].append(item)
             merged_qna_dict[question]["times_asked"] = times_asked
+
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        executor.map(process_qna, unique_messages)
 
     merged_messagesList = [{"question": key, "answers": value.get(
         "answers"), "times_asked": value["times_asked"]} for key, value in merged_qna_dict.items()]
@@ -93,7 +104,8 @@ def merge_similar_answers_using_nlp(messages, similarity_threshold=0.8):
         for answer in message['answers']:
             found_similar_answer = False
             for index, existing_answer in enumerate(merged_answers):
-                similarity = nlp(answer).similarity(nlp(existing_answer))
+                # similarity = nlp(answer).similarity(nlp(existing_answer)) # when using en_core_web_sm
+                similarity = _calculate_similarity(answer, existing_answer)
                 if similarity >= similarity_threshold:
                     found_similar_answer = True
                     break

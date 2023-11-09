@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 
 # Helper functions
 from helpers.formatters import convert_to_qna_chucks, get_top_questions_by_times_asked
-from helpers.optimizers import merge_similar_questions, merge_similar_answers_using_nlp
+from helpers.optimizers import merge_similar_questions, merge_similar_answers_using_nlp, merge_similar_questions_using_nlp
 from helpers.aggregators import get_satisfaction_scores, get_top_negative_score_questions
 
 app = Flask(__name__)
@@ -15,7 +15,8 @@ def get_top_questions():
 
     ## Formatting the data to be optimized
     qna_list = convert_to_qna_chucks(req_data['messages'])
-    merged_messages = merge_similar_questions(qna_list)
+    merged_messages = merge_similar_questions(qna_list) # Fastest
+    # merged_messages = merge_similar_questions_using_nlp(qna_list) # more accurate
 
     ## Optimizing the data
     top_messages = get_top_questions_by_times_asked(merged_messages, 10)
@@ -25,7 +26,6 @@ def get_top_questions():
     aggregated_data = get_satisfaction_scores(final_messages)
 
     return jsonify(aggregated_data)
-
 
 @app.route('/get_worst_or_unanswered_questions', methods=['POST'])
 def get_worst_or_unanswered_questions():

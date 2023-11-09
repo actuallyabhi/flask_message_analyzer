@@ -12,8 +12,12 @@ pip install -r requirements.txt
 ```bash
     cp .env.example .env
 ```
+2. Install the Spacy model (en_core_web_md)
+```bash
+    pip install models/en_core_web_md-3.7.0-py3-none-any.whl
+```
 
-2.Run the app
+3.Run the app
 ```bash
     python app.py
 ```

@@ -7,6 +7,7 @@ def convert_to_qna_chucks(req_data):
                 "unanswered": entry["unanswered"],
                 "message_id": entry['id'],
                 "created_at": entry['created_at'],
+                "chat_id": entry["chat_id"],
             }
             if i + 1 < len(req_data) and req_data[i + 1]["chat_id"] == entry["chat_id"] and req_data[i + 1]["sender_id"] == 1:
                 output.update({

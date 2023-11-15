@@ -22,19 +22,35 @@ pip install models/en_core_web_md-3.7.0-py3-none-any.whl
 ```bash
     python app.py
 ```
+3. Run the laravel app
+```bash
+    php artisan serve
+```
 
 ## API Reference (Laravel)
+> Import curl code in postman to send requests
 1. POST /api/get_top_questions
-    - JSON: {
-        "host_url": string | required,
-        "num_days": int | optional (default: 10),
-    }
-
+```bash
+curl --request GET \
+  --url http://localhost:8000/api/get_worst_or_unanswered_questions \
+  --header 'Content-Type: application/json' \
+  --header 'User-Agent: insomnia/2023.5.8' \
+  --data '{
+	"host_url" : "ivfindia.com",
+	"num_days": 30
+}'
+```
 2. POST /api/get_worst_or_unanswered_questions
-    - JSON: {
-        "host_url": string | required,
-        "num_days": int | optional (default: 10),
-    }
+```bash
+curl --request GET \
+  --url http://localhost:8000/api/get_top_questions \
+  --header 'Content-Type: application/json' \
+  --header 'User-Agent: insomnia/2023.5.8' \
+  --data '{
+	"host_url" : "ivfindia.com",
+	"num_days": 30
+}'
+```
 
 
 ## File structure
